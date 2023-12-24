@@ -14,6 +14,8 @@ import boundary
 import sources
 import tools
 
+import matplotlib.pyplot as plt
+
 
 
 class Sampler:
@@ -221,3 +223,15 @@ if __name__ == '__main__':
 
     # Отображение сигнала, сохраненного в пробнике
     tools.showProbeSignals(probes, dx, dt, -2.1, 2.1)
+
+
+    # Построение спектра
+    plt.figure()
+    sp = np.fft.fft(probes[0].E)
+    freq = np.fft.fftfreq(maxTime)
+    plt.plot(freq / (dt * 1e9), abs(sp) / max(abs(sp)))
+    plt.xlim(0, 2.5)
+    plt.grid()
+    plt.xlabel('f, ГГц')
+    display.stop()
+    plt.show()
