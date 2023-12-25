@@ -8,7 +8,7 @@ import sources
 
 
 def updateLeftBoundaryPmc(Hy):
-    Hy[0] = -Hy[1]
+    Hy[0] = 0
 
 
 def fillMedium(layer: LayerDiscrete,
