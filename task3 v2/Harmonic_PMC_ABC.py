@@ -7,6 +7,12 @@ import scipy.constants as sycon
 import sources
 
 
+def updateLeftBoundaryPmc(Ez):
+    # Электрическое поле в фиктивной ячейке за левой границей равно отрицательному значению
+    # поля в первой физической ячейке (Ez[1]), чтобы добиться нулевого магнитного поля на границе.
+    Ez[0] = -Ez[1]
+
+
 def fillMedium(layer: LayerDiscrete,
                eps: npt.NDArray[np.float64],
                mu: npt.NDArray[np.float64],
@@ -99,19 +105,6 @@ if __name__ == '__main__':
 
     # Размер области моделирования в отсчетах
     maxSize = sampler_x.sample(maxSize_m)
-
-    # Constants for PML
-    nPML = 10  # Number of PML layers
-    R = 1e-6  # PML reflection coefficient
-    sigma_max = 3.0 * sycon.epsilon_0 * c  # Maximum conductivity in PML
-
-    # PML update coefficients
-    sigma_pml = np.zeros(maxSize)
-    alpha_pml = np.zeros(maxSize)
-
-    # Assign PML values
-    sigma_pml[-nPML:] = np.linspace(0, sigma_max, nPML)
-    alpha_pml[-nPML:] = 1.0
 
     # Положение источника в отсчетах
     sourcePos = sampler_x.sample(sourcePos_m)
@@ -212,6 +205,8 @@ if __name__ == '__main__':
         # Источник возбуждения
         Hy[sourcePos - 1] += source.getH(t)
 
+        # Обновляем граничное условие PMC на левой границе
+        updateLeftBoundaryPmc(Ez)
 
         # Расчет компоненты поля E
         Ez[1:-1] = ceze[1: -1] * Ez[1: -1] + cezh[1: -1] * (Hy[1:] - Hy[: -1])
@@ -223,9 +218,6 @@ if __name__ == '__main__':
 
         oldEzRight2[:] = oldEzRight1[:]
         oldEzRight1[:] = Ez[-3:]
-
-        # PML update for the left boundary
-        Ez[0] = alpha_pml[0] * Ez[0] + (1 - alpha_pml[0]) * Ez[1] + R * (Ez[1] - Ez[0])
 
         # Источник возбуждения
         Ez[sourcePos] += source.getE(t)
