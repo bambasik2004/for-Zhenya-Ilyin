@@ -7,10 +7,8 @@ import scipy.constants as sycon
 import sources
 
 
-def updateLeftBoundaryPmc(Ez):
-    # Электрическое поле в фиктивной ячейке за левой границей равно отрицательному значению
-    # поля в первой физической ячейке (Ez[1]), чтобы добиться нулевого магнитного поля на границе.
-    Ez[0] = -Ez[1]
+def updateLeftBoundaryPmc(Hy):
+    Hy[0] = -Hy[1]
 
 
 def fillMedium(layer: LayerDiscrete,
@@ -206,7 +204,7 @@ if __name__ == '__main__':
         Hy[sourcePos - 1] += source.getH(t)
 
         # Обновляем граничное условие PMC на левой границе
-        updateLeftBoundaryPmc(Ez)
+        updateLeftBoundaryPmc(Hy)
 
         # Расчет компоненты поля E
         Ez[1:-1] = ceze[1: -1] * Ez[1: -1] + cezh[1: -1] * (Hy[1:] - Hy[: -1])
